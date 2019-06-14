@@ -1,0 +1,162 @@
+@import "./variable";
+
+.smart-box.smart-box-mechanical {
+    background: 
+        url(../Images/mechanical-top.png),
+        url(../Images/mechanical-bottom.png),
+        url(../Images/mechanical-middle.png);
+    background-size: 100% 66px, 100% 41px, 100% 1px;
+    background-position: center top, center bottom, center center;
+    background-repeat: no-repeat, no-repeat, repeat-y;
+    background-clip: border-box, border-box, content-box;
+    padding: 0px 0px 10px 0px;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 120px;
+
+    > .smart-box-mechanical-inner {
+        background:
+            url(../Images/mechanical-inner-top.png),
+            url(../Images/mechanical-inner-bottom.png),
+            url(../Images/mechanical-inner-middle.png);
+        background-position: center top, center bottom, center 77px;
+        background-size: 100% 77px, 100% 29px, 100% 6px;
+        background-repeat: no-repeat, no-repeat, repeat-y;
+        background-clip: border-box, border-box, content-box;
+        height: calc(100% - 10px);
+        width: calc(100% - 20px);
+        transform: translateY(10px);
+        padding: 77px 0px 29px 0px;
+        margin: 0px auto;
+        box-sizing: border-box;
+        position: relative;
+
+        > .smart-box-mechanical-body {
+            width: calc(100% - 40px);
+            height: calc(100% - 10px);
+            position: absolute;
+            border-radius: 10px;
+            font-size: 14px;
+            top: 0;
+            left: 20px;
+            overflow: hidden;
+        }
+    }
+}
+
+.smart-box.smart-box-flex-row {
+    width: 100%;
+    height: 100%;
+
+    > .smart-box-flex-column {
+        width: 100% / $column-total;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    
+    &.vertical > [class^='smart-box-flex-column'].smart-box-flex-column-clear,
+    > [class^='smart-box-flex-column'].smart-box-flex-column-clear {
+        padding: 0;
+    }
+
+    &.vertical > .smart-box-flex-column {
+        width: 100%;
+        height: 100 / $column-total;
+    }
+
+    @for $i from 1 through $column-total {
+        > .smart-box-flex-column-#{$i} {
+            float: left;
+            overflow: hidden;
+            width: $column-width * $i;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        &.vertical > .smart-box-flex-column-#{$i} {
+            float: left;
+            overflow: hidden;
+            width: 100%;
+            height: $column-width * $i;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+    }
+}
+
+.smart-box.smart-box-window {
+    background: 
+        url(../Images/border-left-top.png),
+        url(../Images/border-left-bottom.png),
+        url(../Images/border-right-top.png),
+        url(../Images/border-right-bottom.png);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+    background-position: left top, left bottom, right top, right bottom;
+    background-size: 38px 81px, 21px 20px, 31px 19px, 190px 48px;
+
+    > .smart-box-window-inner {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid $color;
+        // background-color: rgba(1, 161, 178, .4);
+        background-color: rgba(0, 35, 72, .5);
+        box-sizing: border-box;
+
+        > .smart-box-window-title {
+            height: 40px;
+            color: #fff;
+            text-align: center;
+            line-height: 40px;
+            background-image: url(../Images/title_bg.png);
+            background-size: 80% 20px;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+        }
+
+        
+        > .smart-box-window-body {
+            width: 100%;
+            height: calc(100% - 40px);
+
+            &::-webkit-scrollbar {
+                width: 10px;
+                background-color: rgba(59, 184, 227, .5);
+            }
+        
+            &::-webkit-scrollbar-thumb {
+                border-radius: 5px;
+                background-color: rgba(59, 184, 227, .2);
+            }
+        
+            &::-webkit-scrollbar-thumb {
+                background-color: rgba(59, 184, 227, .3);
+            }
+        }
+    }
+}
+
+
+.smart-box-text-success {
+    color: #67C23A !important;
+}
+
+.smart-box-text-warning {
+    color: #E6A23C !important;
+}
+
+.smart-box-text-dangle {
+    color: #F56C6C !important;
+}
+
+.smart-box-text-info {
+    color: #909399 !important;
+}
+
+.smart-box-text-primary {
+    color: #409EFF !important;
+}
