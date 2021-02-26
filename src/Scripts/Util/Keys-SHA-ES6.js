@@ -113,7 +113,7 @@ export default class Keys{
         return binb2hex(core_sha1(AlignSHA1(charts)), cases)
     }
 
-    parse({str, key}){
+    parse({str, key}, cases = false){
 
         if(!key || key.length !== 40 || !/^[0-9a-zA-Z]{1,40}$/.test(key))
             throw new Error("加密key不符合使用要求，无法对字符串进行加密运算！");
@@ -131,10 +131,10 @@ export default class Keys{
             const k = parseInt(newKey.substr(len, 1), 16);
             result.push((char ^ k).toString(16));
         }
-        return result.join('');
+        return cases ? result.join('').toUpperCase() : result.join('');
     }
 
-    stringify({str, key}){
+    stringify({str, key}, cases = false){
         if(!key || key.length !== 40 || !/^[0-9a-zA-Z]{1,40}$/.test(key))
             throw new Error("加密key不符合使用要求，无法对字符串进行加密运算！");
 
@@ -150,7 +150,7 @@ export default class Keys{
             const k = parseInt(newKey.substr(len, 1), 16);
             result.push((char ^ k).toString(16));
         }
-        return result.join('');
+        return cases ? result.join('').toUpperCase() : result.join('');
     }
 
 }

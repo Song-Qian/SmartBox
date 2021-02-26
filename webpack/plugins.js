@@ -6,18 +6,19 @@
  */
 var htmlPlugin = require('html-webpack-plugin');
 var webpack = require('webpack');
+var path = require('path');
 
 module.exports = function() {
     var htmlPlugins = new htmlPlugin({
-        title : 'Smart-Box 智能机箱',
+        title : '智能监控站运维管理软件',
         filename : './index.html',
-        template : './index.html',
+        template : path.resolve(__dirname, '../', 'index.html'),
         favicon : false,
-        chunks : ['vue', 'vue-router', 'vue-resource', 'vuex', 'element-ui', 'echarts',  'moment', 'lodash', 'ol', 'xlsx', 'app', 'common', 'load']
+        chunks : ['vue-all', 'element-ui', 'echarts',  'moment', 'lodash', 'ol', 'xlsx', 'app', 'utils', 'load']
     });
 
     var commonsChunkPlugin = new webpack.optimize.CommonsChunkPlugin({
-        name : ['common', 'moment', 'lodash', 'element-ui', 'echarts', 'vue', 'vue-router', 'vue-resource', 'ol', 'xlsx', 'vuex', 'app', 'load'],
+        name : ['vue-all', 'moment', 'lodash', 'element-ui', 'echarts',  'ol', 'xlsx', 'app', 'utils', 'load'],
         minChunks : 2
     });
 

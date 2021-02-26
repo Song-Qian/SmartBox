@@ -14,10 +14,14 @@ export default {
                     name: '',
                     username: '',
                     mobile: 0,
-                    role: 0,
-                    roleName: '',
+                    key : '', //后端是明文存储密码，前端尽可能的保证敏感信息，添加密钥，尽可能加大破解可能性！但登陆ajax处是破解bug。
+                    role: {
+                        id : '',
+                        roleName : ''
+                    },
                     password: '',
-                    token: ''
+                    token: '',
+                    record :  false
                 }
             },
             getters: {
@@ -30,89 +34,91 @@ export default {
                 getUsername(state, getters, rootState, rootGetters) {
                     return state.username;
                 },
-                getMobile(state, getters, rootState, rootGetters) {
-                    return state.mobile;
-                },
-                getRoleName(state, getters, rootState, rootGetters) {
-                    return state.roleName;
+                getKey(state, getters, rootState, rootGetters) {
+                    return state.key;
                 },
                 getPassword(state, getters, rootState, rootGetters) {
                     return state.password;
                 },
+                getMobile(state, getters, rootState, rootGetters) {
+                    return state.mobile;
+                },
+                getRole(state, getters, rootState, rootGetters) {
+                    return state.role;
+                },
+                getUser(state, getters, rootState, rootGetters) {
+                    return state;
+                },
                 getUserId(state, getters, rootState, rootGetters) {
                     return state.id;
+                },
+                hasRecordSignIn(state, getters, rootState, rootGetters) {
+                    return state.record;
                 }
             },
             mutations: {
                 setUser(state, user) {
-                    console.log("*************捕获User/setUser事件*************");
                     state.id = user.id;
                     state.name = user.name;
                     state.username = user.username;
                     state.mobile = user.mobile;
                     state.password = user.password;
-                    state.role = user.role;
-                    if (user.role == 3) {
-                        state.roleName = '超级管理员'
-                    } else if (user.role == 2) {
-                        state.roleName = '管理员'
-                    } else if(user.role == 1) {
-                        state.roleName = '操作员'
-                    }
-                    console.info(state.password)
                     state.token = user.token;
-                    sessionStorage.setItem('id', user.id);
-                    sessionStorage.setItem('name', user.name);
-                    sessionStorage.setItem('username', user.username);
-                    sessionStorage.setItem('mobile', user.mobile);
-                    sessionStorage.setItem('role', user.role);
-                    sessionStorage.setItem('roleName', user.roleName);
-                    sessionStorage.setItem('password', user.password);
-                    sessionStorage.setItem('token', user.token);
+                    state.role = user.role;
+                    state.key = user.key;
+                    state.record = user.record || false;
+                    localStorage.setItem('id', user.id);
+                    localStorage.setItem('name', user.name);
+                    localStorage.setItem('username', user.username);
+                    localStorage.setItem('mobile', user.mobile);
+                    localStorage.setItem('role', JSON.stringify(user.role));
+                    localStorage.setItem('password', user.password);
+                    localStorage.setItem('token', user.token);
+                    localStorage.setItem('key', user.key);
+                    localStorage.setItem('record', user.record);
                 },
                 delUser(state) {
-                    console.log("*************捕获User/退出事件*************");
                     state.id = '';
                     state.name = '';
                     state.username = '';
                     state.password = '';
                     state.token = '';
-                    sessionStorage.setItem('id', '');
-                    sessionStorage.setItem('name', '');
-                    sessionStorage.setItem('username', '');
-                    sessionStorage.setItem('password', '');
-                    sessionStorage.setItem('token', '');
-                    sessionStorage.setItem('mobile', '');
-                    sessionStorage.setItem('role', '');
-                    sessionStorage.setItem('roleName', '');
+                    state.key = '';
+                    state.record = false;
+                    state.role = {
+                        id : '',
+                        roleName : ''
+                    }
+                    localStorage.setItem('id', '');
+                    localStorage.setItem('name', '');
+                    localStorage.setItem('username', '');
+                    localStorage.setItem('password', '');
+                    localStorage.setItem('token', '');
+                    localStorage.setItem('mobile', '');
+                    localStorage.setItem('key', '');
+                    localStorage.setItem('record', false);
+                    localStorage.setItem('role', null);
                 },
 
             },
             actions: {
                 login({dispatch, commit, getters, rootGetters, rootState}, user) {
-                    console.log("子模块状态树中提交登陆动作：", user);
-                    console.log("***************开始设置用户信息***************");
                     commit("setUser", user);
-                    console.log("***********捕获User/setUser事件结束***********");
-                },
-                getUserToken({dispatch, commit, getters, rootGetters, rootState}) {
-                    return getters.getToken;
                 },
                 out({dispatch, commit, getters, rootGetters, rootState}) {
                     commit('delUser');
                 },
-                getId({dispatch, commit, getters, rootGetters, rootState}) {
-                    return getters.getUserId;
-                },
                 hasLogin({dispatch, commit, getters, rootGetters, rootState}) {
                     let user = {
-                        id: sessionStorage.getItem("id"),
-                        name: sessionStorage.getItem("name"),
-                        username: sessionStorage.getItem("username"),
-                        password: sessionStorage.getItem("password"),
-                        token: sessionStorage.getItem("token"),
-                        mobile: sessionStorage.getItem("mobile"),
-                        role: sessionStorage.getItem("role"),
+                        id: localStorage.getItem("id"),
+                        name: localStorage.getItem("name"),
+                        username: localStorage.getItem("username"),
+                        password: localStorage.getItem("password"),
+                        token: localStorage.getItem("token"),
+                        mobile: localStorage.getItem("mobile"),
+                        key : localStorage.getItem("key"),
+                        record : localStorage.getItem("record") === "true",
+                        role : JSON.parse(localStorage.getItem("role"))
                     };
                     commit("setUser", user);
                     return user.token;

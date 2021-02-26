@@ -8,12 +8,13 @@ import "babel-polyfill";
 
 export default class  Router{
 
-    constructor({name = "", path = "/", redirect = undefined, alias = undefined, props = null, components = [], children = [], meta = {}}){
+    constructor({name = "", path = "/", redirect = undefined, alias = undefined, props = null, beforeEnter = void 0, components = [], children = [], meta = {}}){
         this.$name = name;
         this.$path = path;
         this.$redirect = redirect;
         this.$alias = alias;
         this.$props = props;
+        this.$beforeEnter = beforeEnter;
         this.components = this.$components = components;
         this.children = this.$children = children;
         this.meta = this.$meta = meta;
@@ -108,6 +109,17 @@ export default class  Router{
 
     get children(){
         return this.$children.length ? this.$children : undefined;
+    }
+
+    set beforeEnter(fn) {
+        if(!(typeof fn === "function")) {
+            throw new Error("参数beforeEnter不是预定义Function类型！");
+        }
+        this.$beforeEnter = fn;
+    }
+
+    get beforeEnter() {
+        return this.$beforeEnter || void 0;
     }
 
     *[Symbol.iterator](){

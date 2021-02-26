@@ -13,7 +13,7 @@ module.exports = {
     contentBase: path.join(__dirname, "../", "dist"),
     proxy: {
         '/api': {
-            target: 'http://localhost:9550/',
+            target: process.env.NODE_ENV === 'development' ? 'http://localhost:9550/' : 'http://10.0.0.225:9550/',
             pathRewrite: {
                 '^/api': ''
             }

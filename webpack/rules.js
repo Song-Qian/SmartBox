@@ -61,12 +61,20 @@ module.exports = function(basicExtract, skinExtract) {
         test: /\.json$/,
         loader: 'file-loader',
         options: {
-            name: 'assets/data/[hash:8].[name].json'
+            name: 'assets/data/[name].json'
         }
     }
 
+    var audioLoader = {
+        test : /\.(mp3)$/,
+        loader: 'file-loader',
+        options: {
+            name : 'assets/data/[name].[ext]'
+        }
+    }
+ 
     var fileLoader = {
-        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        test: /\.(eot|svg|ttf|otf|woff|woff2)$/,
         loader: 'file-loader',
         options: {
           name: 'assets/Css/font/[name].[ext]'
@@ -88,6 +96,7 @@ module.exports = function(basicExtract, skinExtract) {
         cssLoader,
         sassLoader,
         jsonLoader,
+        audioLoader,
         fileLoader,
         pdfLoader
     ]

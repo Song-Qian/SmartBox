@@ -66,20 +66,6 @@ export default (function () {
                         });
                         let path = me.$route.query['redirect'] || '/home/sys';
                         me.$router.push({path});
-                        // me.$http.post(
-                        //     RESTFUL.injective.Api.User.Login, 
-                        //     JSON.stringify({ loginname : me.user.username, password }), 
-                        //     { emulateJSON : true, emulateHTTP: false }
-                        // ).then(res => {
-                        //     if(res.body.rel === 200) {
-                        //         let u = res.body.data;
-                        //         me.login({ id : u.id, name : u.name, username : u.loginname, password : u.password, token : u.token });
-                        //         let path = me.$route.query['redirect'] || '/main/disktop';
-                        //         me.$router.push({ path });
-                        //         return;
-                        //     }
-                        //     me.$message.error(res.body.message);
-                        // });
                     }
                 });
             },

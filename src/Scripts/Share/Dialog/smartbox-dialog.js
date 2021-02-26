@@ -94,6 +94,11 @@ export default (function() {
                 me.$emit('update:show', false);
                 me.$emit('closed');
             },
+            open () {
+                let me = this;
+                me.$emit('update:show', true);
+                me.$emit('opened');
+            }
         }
     }
 })()

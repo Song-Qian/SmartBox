@@ -3,7 +3,7 @@
         <div class="smart-box-dialog-window animated" :class="{ 'fadeIn' : Show, 'fadeOut' : !Show, 'wrong' : Wrong }" :style="getWindowStyles">
             <div class="smart-box-dialog-scrub"></div>
             <div class="smart-box-dialog-inner">
-                <i class="el-icon-circle-close"  style="color: #00fafe; position:absolute; top: 5%; right: 5%; cursor:pointer; margin-right: 10px;" @click.self="close"></i>
+                <i class="el-icon-circle-close"  style="color: #00fafe; position:absolute; top: 5%; right: 4%; font-size: 1.6em; cursor:pointer; margin-right: 10px;" title="关闭" @click.self="close"></i>
                 <div class="smart-box-dialog-header">
                     <slot name="header" v-bind:title="Title">{{Title}}</slot>
                 </div>
@@ -36,7 +36,6 @@ export default SmartBoxDialog
         right: 0;
         z-index: 999;
         width: 100%;
-        height: 100%;
 
         > .smart-box-dialog-window {
             min-height: 300px;
@@ -107,6 +106,12 @@ export default SmartBoxDialog
                     background-position: center bottom;
                     background-repeat: no-repeat;
                     box-sizing: border-box;
+                    > * {
+                        color:#fff;
+                        text-decoration: none;
+                        font-weight: bold;
+                        font-size: 14px;
+                    }
                 }
 
                 > .smart-box-dialog-body {

@@ -23,7 +23,9 @@ import App from '~/App';
 
 class Main{
     constructor(){
+        let me = this;
         Vue.config.debug = true;
+        Vue.config.errorHandler = me.errorHandler;
         Vue.use(ElementUI);
         Vue.use(SmartBoxUI);
         let store = new VueStore().store;
@@ -41,6 +43,14 @@ class Main{
                 return h(this.DynamicComponetView);
             }
         });
+    }
+
+    errorHandler(e) {
+        console.clear();
+        console.group("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        console.warn("系统全局捕获异常，请及时处理。")
+        console.error(e);
+        console.groupEnd("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 }
 

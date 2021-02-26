@@ -1,28 +1,31 @@
 import RESTFUL from '~/Scripts/Util/RestfulApi'
-
+/**
+ * Developer    :   SongQian
+ * Time         :   2019-06-21
+ * eMail        :   onlylove1172559463@vip.qq.com
+ * Description  :   修改人：宋骞， 优化SessionStore使用状态， Vuex数据管理、获取等优化、优化非View上的必须状态禁止放入data()中，避免性能浪费。
+ */
+import { mapGetters } from 'vuex'
+import keys from '~/Scripts/Util/Keys-SHA-ES6'
 export default (function () {
     return {
         name: 'Users',
         data() {
             let checkUserName = (rule, value, callback) => {
-                if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1,6}$/.test(value)) {
-                    callback(new Error('登录用户名只能1-6个中文、字母、数字'));
-                } else {
-                    callback();
-                }
-            }
-
-            let checkPassword = (rule, value, callback) => {
-                if (!/^[a-zA-Z0-9]{1,6}$/g.test(value)) {
-                    callback(new Error('登录密码只能1-6个字母、数字'));
+                if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1,16}$/g.test(value)) {
+                    callback(new Error('用户名只能是1-16个中文、字母、数字组成'));
                 } else {
                     callback();
                 }
             }
 
             let checkMobile = (rule, value, callback) => {
-                if (!/^[0-9]{11}$/g.test(value)) {
-                    callback(new Error('手机号只能是11数字'));
+                if (value || value === 0){
+                    if (!/^[0-9]{11}$/g.test(value)) {
+                        callback(new Error('手机号只能是11数字'));
+                    }else {
+                        callback();
+                    }
                 }else {
                     callback();
                 }
@@ -41,13 +44,10 @@ export default (function () {
                     currentPage: 1,
 
                 },
-                selectIndex:'',
-                username: sessionStorage.getItem("username"),
-                useRole: sessionStorage.getItem('role'),
                 rows: [],
                 roleList:[],
-                wrong: false,
                 hasDialogShow: false,
+                showConfirmButton: false,
                 hasUpdateDialogShow: false,
                 userForm: {
                     id: '',
@@ -60,9 +60,6 @@ export default (function () {
                     account: [
                         {validator: checkUserName, trigger: 'blur'}
                     ],
-                    password: [
-                        {validator: checkPassword, trigger: 'blur'}
-                    ],
                     mobile: [
                         {validator: checkMobile, trigger: 'blur'}
                     ],
@@ -73,6 +70,10 @@ export default (function () {
             }
         },
         computed: {
+            ...mapGetters({
+                'username' : 'User/getUsername',
+                'userRole' : 'User/getRole'
+            })
         },
         methods: {
             query() {
@@ -126,15 +127,13 @@ export default (function () {
                 me.pagination.currentPage = page;
                 me.query();
             },
-            handleEdit(index, row) {
+            handleEdit(row) {
                 let me = this;
                 me.userForm.id = row.id;
                 me.userForm.account = row.account;
                 me.userForm.mobile = row.mobile;
                 me.userForm.role = row.roleId;
                 me.hasUpdateDialogShow = true;
-                me.selectIndex = index;
-
             },
             /**
              * @Description: 新增用户
@@ -146,12 +145,15 @@ export default (function () {
             createUser(userInfo) {
                 let me = this;
                 me.$refs[userInfo].validate((valid) => {
+                    let sha_1 = new keys();
+                    let password = sha_1.SHA('123456',true);
                     if (valid) {
+                        me.showConfirmButton = true;
                         me.$http.post(
                             RESTFUL.injective.Api.User.createUser,
                             JSON.stringify({
                                 account: me.userForm.account, roleId: me.userForm.role,
-                                mobile: me.userForm.mobile, password: me.userForm.password, operator: me.username
+                                mobile: me.userForm.mobile, password: password, operator: me.username
                             }),
                             {emulateJSON: true, emulateHTTP: false}
                         ).then(res => {
@@ -160,6 +162,7 @@ export default (function () {
                                 me.query();
                                 me.handlerOverlayClosed();
                             }
+                            me.showConfirmButton = false;
                             me.$message.error(res.body.errorMessage);
                         });
                     }
@@ -172,7 +175,7 @@ export default (function () {
                         me.$http.post(
                             RESTFUL.injective.Api.User.updateUser,
                             JSON.stringify({account: me.userForm.account, roleId:  me.userForm.role,
-                                mobile: me.userForm.mobile,operator: sessionStorage.getItem("username")}),
+                                mobile: me.userForm.mobile,operator:  me.username  }),
                             { emulateJSON : true, emulateHTTP: false }
                         ).then(res => {
                             if(res.body.success) {
@@ -185,8 +188,8 @@ export default (function () {
                     }
                 });
             },
-            handleDelete(index, row) {
-                this.$confirm('此操作将删除'+row.account+'用户, 是否继续?', '提示', {
+            handleDelete(row) {
+                this.$confirm('此操作将删除 ['+row.account+'] 用户, 是否继续?', '提示', {
                     customClass :　"smart-box smart-box-message",
                     confirmButtonClass: 'el-button--success',
                     cancelButtonClass: 'el-button--warning',
@@ -215,17 +218,20 @@ export default (function () {
                     });
                 });
             },
-            restPassWord(index, row) {
-                this.$confirm('此操作将重置用户的'+row.account+'密码, 是否继续?', '提示', {
+            restPassWord(row) {
+                let sha_1 = new keys();
+                let password = sha_1.SHA('123456',true);
+                let me = this;
+                this.$confirm('此操作将重置用户的 ['+row.account+'] 密码, 是否继续?', '提示', {
                     customClass :　"smart-box smart-box-message",
                     confirmButtonClass: 'el-button--success',
                     cancelButtonClass: 'el-button--warning',
                     type: 'warning'
                 }).then(() => {
-                    let me = this;
                     me.$http.post(
-                        RESTFUL.injective.Api.User.resetPassword+'?account='+row.account,
-                        { emulateJSON : false, emulateHTTP: false }
+                        RESTFUL.injective.Api.User.resetPassword,
+                        { account : row.account,password },
+                        { emulateJSON : true, emulateHTTP: false }
                     ).then(res => {
                         if(res.body.success) {
                             this.$message({
@@ -249,39 +255,9 @@ export default (function () {
                 me.hasDialogShow = true;
 
             },
-            ifShowDeleted: function (account) {
-                let me = this;
-                if (me.useRole==='op') {
-                    return false;
-                }else{
-                    return !(account === me.username);
-                }
-
-            },
-            ifShowResetPassword: function (account) {
-                let me = this;
-                if (me.useRole==='op') {
-                    return false;
-                }else if (me.useRole==='admin'){
-                    return true;
-                }else{
-                    return account !== me.username;
-                }
-            },
-            ifShowEdit: function (account) {
-                let me = this;
-                if (me.useRole==='op') {
-                    return account === me.username;
-                }else if (me.useRole==='admin'){
-                    return true;
-                } else{
-                    return true;
-                }
-
-
-            },
             resetForm(userInfo) {
                 this.$refs[userInfo].resetFields();
+                this.showConfirmButton = false;
                 this.handlerOverlayClosed();
             },
             handlerOverlayClosed() {

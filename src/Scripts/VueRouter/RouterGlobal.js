@@ -11,15 +11,16 @@ import VueResource from 'vue-resource'
 import Router from './Router'
 import RouterConfig from './RouterConfig'
 
-export default class  RouterGlobal{
+export default class RouterGlobal {
 
-    constructor({router = [], routerConfig = RouterConfig, store = null}){
+    constructor({ router = [], routerConfig = RouterConfig, store = null }){
         Vue.use(VueRouter);
         Vue.use(VueResource);
         this.Router = router;
         this.RouterConfig = routerConfig;
         this.$router = null;
         this.$store = store;
+        this.$requsets = [];
     }
 
     addRouter(router) {
@@ -32,7 +33,7 @@ export default class  RouterGlobal{
     renderRouter(){
         if(!this.RouterConfig || !this.RouterConfig instanceof RouterConfig)
             throw new Error("动态渲染路由时，发现routerConfig不是预定义的RouterConfig类型");
-        let routers = this.RouterConfig.getRouter();
+        let routers = this.RouterConfig.getRouter(this.$store);
         let renderRouter = it => {
             let router = it.children && it.children.length ? it.children.map(renderRouter) : [it];
             if([...router].length === 1 && !([...router][0] instanceof Router)){
@@ -44,40 +45,48 @@ export default class  RouterGlobal{
         return [...routers.map(renderRouter)];
     }
 
-    listenersRouter(to, from, next){
-        if(to.meta.requiredAuth){
-            this.$store.dispatch('User/hasLogin').then(token => {
+    async listenersRouter(to, from, next){
+        if(to.meta.requiredAuth) {
+            try {
+                let token = await this.$store.dispatch('User/hasLogin');
                 if(!token)
                     next({name : 'login', query: { redirect: to.fullPath }});
                 else
                     next();
-            }).catch(err => {
+            } catch(e) {
+                console.error(e);
                 next({name : 'home', query: { redirect: to.fullPath }});
-            });
-        }else{
+            }
+        } else {
             next();
+        }
+    }
+
+    annulmentAjax(request) {
+        let i = this.$requsets.indexOf(request);
+        let o = this.$requsets.splice(i, 1)[0];
+        if(o && this.$router.history.current.fullPath != o.headers.get("target") && o.abort) {
+            o.abort();
         }
     }
 
     registerSafetyAjax(){
         Vue.http.interceptors.push((request, next) => {
-            // this.$store.dispatch('getUserToken').then(token => {
-            //     request.headers.set("Status-Tool-Auth_Token",token);
-            //     next((response) => {
-            //         if(response.body.rel == "2001"){
-            //                 $("#modal-login").modal({backdrop:"static"})
-            //         }else{
-            //              return response;
-            //          }
-            //     })
-            // }).catch(err => {
-            //     next((response) => {
-            //         response.body = { success : "fail", message : "store中发生未知脚本错误，本次请求放弃有效数据。", err };
-            //         response.status = 201;
-            //         return false;
-            //     });
-            // });
-            next()
+            let token = this.$store.getters['User/getToken'];
+            if(token) {
+                request.headers.set("SmartBox-Auth-Token",token);
+                request.headers.set("target", this.$router.history.current.fullPath);
+                request.before = this.annulmentAjax.bind(this);
+                this.$requsets.push(request);
+                next((response) => {
+                    if(response.body && ["GM100000", "GM400003"].indexOf(response.body.errorCode) > -1) {
+                        this.$router.push({ name : 'login' })
+                        return false;
+                    }
+                })
+            } else {
+                this.$router.push({ name : 'login' })
+            }
         })
     }
 

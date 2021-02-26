@@ -6,3 +6,6 @@
  */
 export const User = "User";
 export const Warning = 'Warning';
+export const Sys = 'Sys';
+export const Home = 'Home';
+export const Equipment = 'Equipment';

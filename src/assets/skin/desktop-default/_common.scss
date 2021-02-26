@@ -122,20 +122,17 @@
         > .smart-box-window-body {
             width: 100%;
             height: calc(100% - 40px);
-
+            
             &::-webkit-scrollbar {
                 width: 10px;
-                background-color: rgba(59, 184, 227, .5);
-            }
-        
-            &::-webkit-scrollbar-thumb {
-                border-radius: 5px;
                 background-color: rgba(59, 184, 227, .2);
             }
         
             &::-webkit-scrollbar-thumb {
-                background-color: rgba(59, 184, 227, .3);
+                border-radius: 5px;
+                background-color: rgba(0, 250, 254, .8);
             }
+
         }
     }
 }
@@ -159,4 +156,23 @@
 
 .smart-box-text-primary {
     color: #409EFF !important;
+}
+
+.el-tooltip__popper[x-placement^=top] .popper__arrow{
+    background-color: transparent !important;
+}
+
+.el-tooltip__popper[x-placement^=top] .popper__arrow:after {
+    background-color: transparent !important;
+}
+
+.smart-box-popper-text{
+    font-size: 14px;
+    background-color: transparent !important;
+}
+
+.smart-box-svg-font {
+    font-family: "Computed Number";
+    font-size: 14px;
+    font-weight: bold;
 }

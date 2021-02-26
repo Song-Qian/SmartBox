@@ -1,6 +1,6 @@
-# smart-box
+# statusmgr
 
-> 公路交通光端机后台维护业务项目
+> A Vue.js project
 
 ## Build Setup
 
@@ -14,3 +14,5 @@ npm run dev
 # build for production with minification
 npm run build
 ```
+
+For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).

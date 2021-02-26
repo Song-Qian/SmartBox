@@ -41,7 +41,7 @@
 <!--                        </el-col>-->
                     </el-row>
                     <el-form-item style="text-align:center;" label-width="0">
-                        <el-button type="primary" class="smart-box smart-box-button" style="width: 100%;" @click="submitForm('userRule')">登陆</el-button>
+                        <el-button type="primary" class="smart-box smart-box-button" style="width: 100%;" @click="submitForm('userRule')">登录</el-button>
                     </el-form-item>
                 </el-form>
             </el-card>

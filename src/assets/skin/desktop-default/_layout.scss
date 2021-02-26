@@ -10,11 +10,45 @@ html, body{
   height:100%;
   width:100%;
 }
+// @font-face {
+// 	font-family: 'Gen Jyuu Gothic Normal';
+// 	src : url('./fonts/GenJyuuGothic-Normal.ttf') format('truetype');
+// }
+
+// @font-face {
+// 	font-family: 'Gen Jyuu Gothic P Normal';
+// 	src : url('./fonts/GenJyuuGothic-P-Normal.ttf') format('truetype');
+// }
+
+// @font-face {
+// 	font-family: 'Gen Jyuu Gothic LP Normal';
+// 	src : url('./fonts/GenJyuuGothicL-P-Normal.ttf') format('truetype');
+// }
+
+@font-face {
+	font-family: '思源黑体 Normal';
+	src : url('./fonts/SourceHanSansSC-Normal.otf') format('opentype');
+}
+
+@font-face {
+	font-family: '方正黑体简体';
+	src : url('./fonts/FZ HTJW.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Computed Number';
+	src : url('./fonts/digifaw.ttf') format('truetype');
+}
+
+* {
+    font-family:  '思源黑体 Normal', '方正黑体简体';
+}
 
 #app {
-  font-family: "PingFang SC","Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color:#2c3e50;
-  height:100%;
+    // font-family: "PingFang SC","Helvetica Neue",Helvetica,"Hiragino Sans GB",Arial,sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color:#2c3e50;
+    height:100%;
 }

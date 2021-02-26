@@ -6,36 +6,66 @@
  */
 import moment from 'moment'
 import _ from 'lodash'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
+import RESTFULAPI from '~/Scripts/Util/RestfulApi'
+
 
 export default (function() {
     return {
         name : 'WaringDetail',
+        props : {
+            id : {
+                default : 0,
+                type : Number
+            }
+        },
         data() {
             return {
                 color : '#F56C6C',
-                arr : [1,2,3,4,5,6,7,8]
+                arr : [],
+                detail : {}
             }
         },
-        computed : {
-           ...mapGetters({
-               'detail' : 'Warning/getEntity'
-           })
-        },
         methods : { 
-           
+            //时间戳转换为时间
+            DateTimeFormate(number){
+                if(number){
+                    return moment.unix(number).format('YYYY-MM-DD HH:mm:ss');
+                }
+                return '';
+            },
+            async getAlarmInfo(){
+                let me = this;
+                let response =  await me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.getAlarmInfo, {
+                        alarmId : me.id
+                        }, {
+                    emulateJSON : true,
+                    emulateHTTP : false
+                });
+                console.info(response);
+                if(response.status === 200){
+                    me.detail = response.body.model;
+                }
+            },
+            async getDealInfoDate(){
+                let me = this;
+                let response =  await me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.getDealInfoDate, {
+                        alarmId : me.id
+                        }, {
+                    emulateJSON : true,
+                    emulateHTTP : false
+                });
+                if(response.status === 200){
+                    me.arr = response.body.model;
+                }
+            }
+            
         },
         mounted() {
             let me = this;
-            if(me.detail.state === "未处理"){
-                me.color = '#FDB643';
-            }else if (me.detail.state === '已派工'){
-                me.color = '#05A2F4';
-            }else if (me.detail.state === '已完成'){
-                me.color = '#61FD44';
-            }else if (me.detail.state === '已忽略'){
-                me.color = '#969696';
-            }
+            me.getAlarmInfo();
+            me.getDealInfoDate();
+           
         }
     }
 })()

@@ -6,11 +6,15 @@
  */
 
  import SmartBoxDialog from './Dialog/SmartBoxDialog.vue'
+ import SmartBoxMap from './Map/SmartBoxMap.vue'
+ import SmartBoxIntersection from './Intersection/SmartBoxIntersection.vue'
 
  export default (function() {
      return {
          install(Vue, options) {
             Vue.component(SmartBoxDialog.name, SmartBoxDialog);
+            Vue.component(SmartBoxMap.name, SmartBoxMap);
+            Vue.component(SmartBoxIntersection.name, SmartBoxIntersection);
          }
      }
  })()

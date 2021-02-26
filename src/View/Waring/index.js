@@ -6,147 +6,366 @@
  */
 import moment from 'moment'
 import _ from 'lodash'
-import { mapActions } from 'vuex'
+import {mapGetters} from 'vuex'
+import RESTFULAPI from '~/Scripts/Util/RestfulApi'
+import XLSX from 'xlsx'
 
 
-export default (function() {
+export default (function () {
     return {
-        name : 'Waring',
+        name: 'Waring',
+        props: {
+            id: {
+                default: "",
+                type: String
+            }
+        },
         data() {
             return {
-                search : {
-                    deviceName : '',
-                    deviceType : '',
-                    errorTime : '',
-                    errorProject : '',
-                    username : '',
-                    resolveStatus : '',
-                    resolveTime : ''
+                search: {
+                    deviceName: '',
+                    deviceType: '',
+                    errorTime: [],
+                    errorProject: '',
+                    username: '',
+                    resolveStatus: '',
+                    resolveTime: []
                 },
-                tableList :  [
-                    { name : '1路口',devieTypeTable : 'WTOE-VE', type : '设备停电', time : '2019-03-01 2:23:23',dealMan : '张三', state : '未处理',dealTime : ''  },
-                    { name : '2路口',devieTypeTable : 'WTOE-VN', type : '空开跳闸', time : '2019-03-02 12:23:23',dealMan : '李四', state : '未处理',dealTime : ''  },
-                    { name : '3路口',devieTypeTable : 'WTOE-VE', type : '设备停电', time : '2019-03-01 2:24:23',dealMan : '张三', state : '未处理',dealTime : ''  },
-                    { name : '4路口',devieTypeTable : '摄像机', type : '摄像机故障', time : '2019-03-04 14:24:24',dealMan : '李四', state : '已派工',dealTime : '2019-03-04 14:44:44'  },
-                    { name : '5路口',devieTypeTable : 'WTOE-VE', type : '设备停电', time : '2019-03-01 2:23:23',dealMan : '张三', state : '未处理',dealTime : ''  },
-                    { name : '6路口',devieTypeTable : 'WTOE-VN', type : '网线故障', time : '2019-03-08 08:20:23',dealMan : '李四', state : '未处理',dealTime : ''  },
-                    { name : '7路口',devieTypeTable : 'WTOE-VE', type : '管理网络异常', time : '2019-04-04 2:28:28',dealMan : '张三', state : '未处理',dealTime : ''  },
-                    { name : '8路口',devieTypeTable : '摄像机', type : '摄像机故障', time : '2019-03-09 14:29:24',dealMan : '李四', state : '已派工',dealTime : '2019-03-10 19:01:44'  },
-                    { name : '9路口',devieTypeTable : 'WTOE-VE', type : '设备停电', time : '2019-03-01 2:23:23',dealMan : '张三', state : '已完成',dealTime : '2019-03-11 11:00:00'  },
-                    { name : '10路口',devieTypeTable : 'WTOE-VN', type : '网线故障', time : '2019-03-08 08:20:23',dealMan : '李四', state : '未处理',dealTime : ''  },
-                    { name : '11路口',devieTypeTable : 'WTOE-VE', type : '管理网络异常', time : '2019-04-04 2:28:28',dealMan : '张三', state : '已忽略',dealTime : '2019-04-13 13:00:00'  },
-                    { name : '12路口',devieTypeTable : '摄像机', type : '摄像机故障', time : '2019-03-09 14:29:24',dealMan : '李四', state : '已派工',dealTime : '2019-03-14 19:01:44'  },
-                    { name : '13路口',devieTypeTable : '闪光灯', type : '设备掉电', time : '2019-03-15 2:15:23',dealMan : '张三', state : '已完成',dealTime : '2019-03-17 15:00:00'  },
-                    { name : '14路口',devieTypeTable : '补光灯', type : '设备掉电', time : '2019-03-20 08:25:23',dealMan : '李四', state : '未处理',dealTime : ''  },
-                    { name : '15路口',devieTypeTable : '光传输设备', type : '管理网络异常', time : '2019-04-16 2:28:28',dealMan : '张三', state : '已忽略',dealTime : '2019-04-17 13:00:00'  },
-                    { name : '16路口',devieTypeTable : '摄像机', type : '摄像机故障', time : '2019-03-22 22:29:24',dealMan : '李四', state : '已派工',dealTime : '2019-03-25 19:25:25'  },
-                    { name : '17路口',devieTypeTable : '摄像机', type : '摄像机故障', time : '2019-04-02 12:22:22',dealMan : '李四', state : '已派工',dealTime : '2019-04-03 19:01:44'  },
-                    { name : '18路口',devieTypeTable : '闪光灯', type : '设备掉电', time : '2019-04-15 2:15:23',dealMan : '张三', state : '已完成',dealTime : '2019-04-17 15:00:00'  },
-                    { name : '19路口',devieTypeTable : '补光灯', type : '设备掉电', time : '2019-04-20 08:25:23',dealMan : '李四', state : '未处理',dealTime : ''  },
-                    { name : '20路口',devieTypeTable : '光传输设备', type : '管理网络异常', time : '2019-04-16 2:28:28',dealMan : '张三', state : '已忽略',dealTime : '2019-04-17 13:00:00'  },
-                    { name : '21路口',devieTypeTable : '摄像机', type : '摄像机故障 ', time : '2019-04-22 22:29:24',dealMan : '李四', state : '已派工',dealTime : '2019-04-25 19:25:25'  }
-                ],
-                pagination : {
-                    page : 1,
-                    pageSize : 10,
-                    total : 100
+                alaramItemList: [],
+                picList:[],
+                tableList: [],
+                pagination: {
+                    page: 1,
+                    pageSize: 10,
+                    total: 10
                 },
-                changeStateDailog : {
-                    Isshow : false,
-                    radio : '未处理',
-                    remark : ''
+                batchChangeStateDailog:{
+                    ruleForm: {
+                        dealMan: '',
+                        radio: '',
+                        remark: ''
+                    },
+                    alarmId: '',
+                    Isshow: false,
+                    closeDialog: false,
+                    processor: []
                 },
-                form : { 
-                    name : '',
-                    devieTypeTable : '',
-                    type : '',
-                    time : '',
-                    dealMan : '',
-                    state : '',
-                    dealTime : ''
-                }
+                changeStateDailog: {
+                    ruleForm: {
+                        dealMan: '',
+                        radio: '',
+                        remark: ''
+                    },
+                    alarmId: '',
+                    Isshow: false,
+                    processor: []
+                },
+                form: {
+                    name: '',
+                    devieTypeTable: '',
+                    type: '',
+                    time: '',
+                    dealMan: '',
+                    state: '',
+                    dealTime: ''
+                },
+                rules: {
+                    dealMan: [
+                        {required: true, message: '请选择处理人', trigger: 'change'},
+                    ],
+                    radio: [
+                        {required: true, message: '请选择一个处理状态', trigger: 'change'}
+                    ],
+                    // remark: [
+                    //   {required: true, message: '请填写处理备注', trigger: 'blur' },
+                    //   { min: 1, max: 300, message: '长度在 1 到 300 个字符', trigger: 'blur' }
+                    // ]
+                },
+                devicedTypeList: []
             }
         },
-        computed : {
-            getFilterData() {
-                let me = this;
-                let data = _.clone(me.tableList);
-                if(me.search.deviceName){
-                    data = data.filter(it => it.name.indexOf(me.search.deviceName) > -1);
-                }
-                if(me.search.deviceType){
-                    console.info(me.search.deviceType)
-                    data = data.filter(it => it.devieTypeTable.indexOf(me.search.deviceType) > -1);
-                }
-                if(me.search.errorTime){
-                    data = data.filter(it => moment(it.time).isAfter(me.search.errorTime[0]) && moment(it.time).isBefore(me.search.errorTime[1]));
-                }
-                if(me.search.errorProject){
-                    data = data.filter(it => it.type.indexOf(me.search.errorProject) > -1);
-                }
-                if(me.search.username){
-                    data = data.filter(it => it.dealMan.indexOf(me.search.username) > -1);
-                }
-                if(me.search.resolveStatus){
-                    data = data.filter(it => it.state.indexOf(me.search.resolveStatus) > -1);
-                }
-                if(me.search.resolveTime){
-                    data = data.filter(it => moment(it.dealTime).isAfter(me.search.resolveTime[0]) && moment(it.dealTime).isBefore(me.search.resolveTime[1]));
-                }
-                return data;
-            },
-            getDataTable() {
-                let me = this;
-                //_.drop(arr, int) _.take(arr, int)
-                return _.take(_.drop(me.getFilterData, (me.pagination.page - 1) * me.pagination.pageSize), me.pagination.pageSize);
-            },
-            getTotal() {
-                let me = this;
-               return  me.getFilterData.length;
-            }
+        computed: {
+            ...mapGetters({
+                'User': 'User/getUser'
+            })
         },
-        methods : { 
+        methods: {
+            //获取查询条件中异常项目的数据（告警表中有多少就显示多少，不需要全部显示出来）
+            async getAlarmItemList() {
+                let me = this;
+                let response = await me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.getAlarmItemList, {}, {
+                    emulateJSON: false,
+                    emulateHTTP: true
+                });
+                if (response.body.success) {
+                    // & && | ||
+                    me.alaramItemList = response.body.model || [];
+                }
+            },
+            //时间戳转换为时间
+            DateTimeFormate(number) {
+                if (number) {
+                    return moment.unix(number).format('YYYY-MM-DD HH:mm:ss');
+                }
+                return '';
+            },
+            //设备类型下拉框
+            async loadDeviceType() {
+                let me = this;
+                let res = await me.$http.get(RESTFULAPI.injective.Api.DeviceType.QueryAll, null, {
+                    emulateJSON: false,
+                    emulateHTTP: false
+                });
+                if (res.status === 200 && res.body.success) {
+                    me.devicedTypeList = res.body.model.map(it => ({label: it.typeName, value: it.typeCode}));
+                }
+            },
             handleSizeChange(val) {   //切换每页条数时，触发的方法
                 let me = this;
-               me.pagination.pageSize = val;
+                me.pagination.pageSize = val;
+                me.getAlarmInfoGridDate();
             },
-            handleCurrentChange(val) {          //点击下一页或某一页时，出发啊的方法
-                console.log(`当前页: ${val}`);
-            },
-            handleQueryDetail (entity) {
+            handleCurrentChange(val) {      //点击下一页或某一页时，出发啊的方法
                 let me = this;
-                me.save(entity);
-                me.$router.push({ name : 'messageDetail'})
+                me.getAlarmInfoGridDate();
             },
-            changeState(val){
+            handleQueryDetail(entity) {
+                let me = this;
+                // me.save(entity);
+                me.$router.push({name: 'messageDetail', params: {id: entity.id}})
+            },
+            changeState(val) {
                 let me = this;
                 me.changeStateDailog.Isshow = true;
+                let userName = me.User.username;
+                me.changeStateDailog.ruleForm.dealMan = userName;
                 me.form = val;
-                me.changeStateDailog.radio = val.state;
-                me.changeStateDailog.remark = '';
+                me.changeStateDailog.ruleForm.radio = val.isDeal;
+                me.changeStateDailog.ruleForm.remark = '';
+                me.changeStateDailog.alarmId = val.id;
+                me.getUserInfo();
             },
-            searchDate(){
-                
+            batchChangeState() {
+                let me = this;
+                me.batchChangeStateDailog.Isshow = true;
+                let userName = me.User.username;
+                me.batchChangeStateDailog.ruleForm.dealMan = userName;
+                me.batchChangeStateDailog.ruleForm.radio = 4;
+                me.getUserInfo();
             },
-            clearSearch(){
+            searchDate() {
+                let me = this;
+                me.pagination.page = 1;
+                me.getAlarmInfoGridDate();
+            },
+            clearSearch() {
                 let me = this;
                 me.search.deviceName = '';
+                me.id = '';
                 me.search.deviceType = '';
                 me.search.errorTime = '';
                 me.search.errorProject = '';
                 me.search.username = '';
                 me.search.resolveStatus = '';
                 me.search.resolveTime = ''
+                me.pagination.page = 1;
+                me.getAlarmInfoGridDate();
             },
             closeDialog() {
                 let me = this;
                 me.changeStateDailog.remark = '';
-            }, 
-            ...mapActions({
-                'save' : 'Warning/save'
-            })
+            },
+            //获取告警信息列表
+            async getAlarmInfoGridDate() {
+                let me = this;
+                let response = await me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.getGridDate, {
+                    deviceName: me.search.deviceName,
+                    deviceType: me.search.deviceType,
+                    errorStartTime: me.search.errorTime && me.search.errorTime[0] || '',
+                    errorEndTime: me.search.errorTime && moment(me.search.errorTime[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss') || '',
+                    errorProject: me.search.errorProject,
+                    username: me.search.username,
+                    deviceId: me.id,
+                    resolveStatus: me.search.resolveStatus,
+                    resolveStartTime: me.search.resolveTime && me.search.resolveTime[0] || '',
+                    resolveEndTime: me.search.resolveTime && moment(me.search.resolveTime[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss') || '',
+                    page: me.pagination.page,
+                    pageSize: me.pagination.pageSize
+                }, {
+                    emulateJSON: false,
+                    emulateHTTP: true
+                });
+                if (response.status === 200) {
+                    let dataGrid = response.body.model;
+                    me.tableList = dataGrid;
+                    me.pagination.total = response.body.totalCount;
+                }
+            },
+
+            //告警列表中点击智能机箱设备则跳转到智能机箱页面，若非智能机箱，则给提示，并不跳转
+            clickDevName(devId, devTypeCode) {
+                let me = this;
+                if ("WTOS-VN" == devTypeCode) {
+                    me.$router.push({name: 'box', params: {id: devId}});
+                } else if ("WTOS-VN-TME200" == devTypeCode) {
+                    me.$router.push({name: 'traffic', params: {deviceId: devId}});
+                } else {
+                    me.$message.info("请点击智能机箱设备", "提示",
+                        {
+                            customClass: "smart-box smart-box-message",
+                            confirmButtonClass: "el-button--success",
+                            cancelButtonClass: 'el-button--warning'
+                        });
+                    return;
+                }
+            },
+            //获取操作中下拉框的用户信息
+            async getUserInfo() {
+                let me = this;
+                let response = await me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.getUserInfo, {}, {
+                    emulateJSON: false,
+                    emulateHTTP: true
+                });
+
+                if (response.status === 200 && response.body.success) {
+                    let data = response.body.model;
+                    me.changeStateDailog.processor = data;
+                    me.batchChangeStateDailog.processor = data;
+                }
+            },
+
+            //将操作信息（处理人，处理状态，备注）插入数据库
+            insertDealInfo() {
+                this.$refs.ruleForm.validate((valid) => {
+                    if (valid) {
+                        let me = this;
+                        let response = me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.insertOpInfo, {
+                            opAlarmId: me.changeStateDailog.alarmId,
+                            opUid: me.changeStateDailog.ruleForm.dealMan,
+                            isDeal: me.changeStateDailog.ruleForm.radio,
+                            opInfo: me.changeStateDailog.ruleForm.remark
+                        }, {
+                            emulateJSON: false,
+                            emulateHTTP: true
+                        }).then(result => {
+                            me.changeStateDailog.Isshow = false;
+                            me.getAlarmInfoGridDate();
+                        })
+                    } else {
+                        return false;
+                    }
+                });
+            },
+            closechangeStateDailog() {
+                let me = this;
+                this.$refs.ruleForm.resetFields();
+                me.changeStateDailog.Isshow = false;
+            },
+            batchClosechangeStateDailog() {
+                let me = this;
+                me.batchChangeStateDailog.Isshow = false;
+            },
+            cellStyle(row, column, rowIndex, columnIndex) {
+                if (row.row.alarmLever === 1) {
+                    return 'color:#F56C6C;';
+                }
+                if (row.row.alarmLever === 2) {
+                    return 'color:#E6A23C;';
+                }
+            },
+            //告警列表导出
+            async exportAlarmInfo() {
+                let me = this;
+                let response = await me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.exportAlarmInfo, {
+                    deviceName: me.search.deviceName,
+                    deviceId: me.id,
+                    deviceType: me.search.deviceType,
+                    errorStartTime: me.search.errorTime[0] || '',
+                    errorEndTime: me.search.errorTime[1] || '',
+                    errorProject: me.search.errorProject,
+                    username: me.search.username,
+                    resolveStatus: me.search.resolveStatus,
+                    resolveStartTime: me.search.resolveTime[0] || '',
+                    resolveEndTime: me.search.resolveTime[1] || '',
+                }, {
+                    emulateJSON: false,
+                    emulateHTTP: true
+                });
+                if (response.body.success) {
+                    let wb = XLSX.utils.book_new();
+                    let data = response.body.model.map(it => ([it.devName, it.devTypeName, it.alarmName,it.alarmDesc, me.DateTimeFormate(it.alarmTime), it.userName, ['', '未处理', '已派单', '已忽略', '已完成'][it.isDeal], it.dealTime]));
+                    let ws = XLSX.utils.aoa_to_sheet([['设备名称', '设备类型', '异常项目','告警描述', '异常时间', '处理人', '处理状态', '处理时间'], ...data]);
+                    XLSX.utils.book_append_sheet(wb, ws, '告警信息导出');
+                    XLSX.writeFile(wb, `告警信息导出-${moment().unix()}.xlsx`);
+                } else {
+                    me.$message.error("服务端错误，导出失败", "提示",
+                        {
+                            customClass: "smart-box smart-box-message",
+                            confirmButtonClass: "el-button--success",
+                            cancelButtonClass: 'el-button--warning'
+                        });
+                }
+
+            },
+            async batchProcessing() {
+                let me = this;
+                me.$confirm('此操作会将所有符合查询条件的告警信息 共'+me.pagination.total+'条,全部修改为已完成，是否继续?', '提示', {
+                    customClass :　"smart-box smart-box-message",
+                    confirmButtonClass: 'el-button--success',
+                    cancelButtonClass: 'el-button--warning',
+                    type: 'warning'
+                }).then(() => {
+                    me.$http.post(RESTFULAPI.injective.Api.AlarmInfo.batchProcessing, {
+                        deviceName: me.search.deviceName,
+                        deviceType: me.search.deviceType,
+                        errorStartTime: me.search.errorTime && me.search.errorTime[0] || '',
+                        errorEndTime: me.search.errorTime && moment(me.search.errorTime[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss') || '',
+                        errorProject: me.search.errorProject,
+                        username: me.search.username,
+                        processor: me.batchChangeStateDailog.ruleForm.dealMan,
+                        dealStatus: me.batchChangeStateDailog.ruleForm.radio,
+                        deviceId: me.id,
+                        resolveStatus: me.search.resolveStatus,
+                        resolveStartTime: me.search.resolveTime && me.search.resolveTime[0] || '',
+                        resolveEndTime: me.search.resolveTime && moment(me.search.resolveTime[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss') || '',
+                        page: me.pagination.page,
+                        pageSize: me.pagination.pageSize
+                    }, {
+                        emulateJSON: false,
+                        emulateHTTP: true
+                    }).then(res => {
+                        if (res.status === 200) {
+                            me.getAlarmInfoGridDate();
+                            this.$message({
+                                type: 'success',
+                                message: '修改成功,本次共修改'+res.body.model+'条数据'
+                            });
+                            me.batchChangeStateDailog.Isshow = false;
+                        }else{
+                            this.$message({
+                                type: 'error',
+                                message: '处理失败'
+                            });
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消修改'
+                    });
+                });
+            }
+            // ...mapActions({
+            //     'save' : 'Warning/save'
+            // })
         },
         mounted() {
+            let me = this;
+            me.getAlarmInfoGridDate();
+            me.getAlarmItemList();
+            me.loadDeviceType();
         }
+
+
     }
 })()
